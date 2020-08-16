@@ -1,4 +1,4 @@
-# README
+# VMware ESXi BIOS && UEFI PXE BOOT (Tiny PXE Server)
 
 1. 拷贝 ESXi 镜像到 images 下，创建目录存放（比如 esxi7.0）
 
