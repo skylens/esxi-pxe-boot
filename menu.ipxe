@@ -1,0 +1,64 @@
+#!ipxe
+
+set boot-url http://${next-server}
+
+# Setup some basic convenience variables
+set menu-timeout 5000
+set submenu-timeout ${menu-timeout}
+
+# Ensure we have menu-default set to something
+isset ${menu-default} || set menu-default exit
+
+:start
+menu PXE Boot Options
+item
+item --gap -- ------------------------------- Menus -----------------------------------
+item esxi7.0       VMware ESXi 7.0
+item esxi6.7       VMware ESXi 6.7
+item --gap -- ------------------------------ Advanced ---------------------------------
+item config     Configure settings
+item shell      Enter iPXE shell
+item reboot     Reboot
+item exit       Exit (boot local disk)
+choose --default exit --timeout 30000 target && goto ${target}
+
+########## UTILITY ITEMS ####################
+:config
+config
+goto start
+
+:shell
+echo Type exit to get the back to the menu
+shell
+set menu-timeout 0
+goto start
+
+:failed
+echo Booting failed, dropping to shell
+goto shell
+
+:reboot
+reboot
+
+:exit
+exit
+
+:cancel
+echo You cancelled the menu, dropping you to a shell
+
+:back
+set submenu-timeout 0
+clear submenu-default
+goto start
+
+
+########## VMware ITEMS ####################
+:esxi7.0
+iseq ${platform} efi && set esxi_bootloader efi/boot/bootx64.efi || set esxi_bootloader mboot.c32
+kernel ${boot-url}/${esxi_bootloader} -c ${boot-url}/bootcfg/esxi7.cfg
+boot
+
+:esxi6.7
+iseq ${platform} efi && set esxi_bootloader efi/boot/bootx64.efi || set esxi_bootloader mboot.c32
+kernel ${boot-url}/${esxi_bootloader} -c ${boot-url}/bootcfg/esxi6.7.cfg
+boot

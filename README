@@ -1,0 +1,29 @@
+# README
+
+1. 拷贝 ESXi 镜像到 images 下，创建目录存放（比如 esxi7.0）
+
+2. 修改 menu.ipxe ，添加相应的 item
+
+item esxi7       VMware ESXi 7.0
+
+
+:esxi7
+iseq ${platform} efi && set esxi_bootloader efi/boot/bootx64.efi || set esxi_bootloader mboot.c32
+kernel ${boot-url}/${esxi_bootloader} -c ${boot-url}/bootcfg/esxi7.cfg
+boot
+
+3. 制作 bootcfg 文件 
+
+从 VMware ESXi 镜像中复制 BOOT.CFG，重命名文件，
+并修改对应的 prefix 和 kernelopt，其中的 IP 为 
+Tiny PXE Server 的 IP， prefix 的值指定的是 ESXi
+的镜像路径，kernelopt 则是指定 kickstart 的路径
+
+prefix=http://172.16.32.9/imagse/esxi7.0/
+
+kernelopt=ks=http://172.16.32.9/kscfg/esxiks.cfg
+
+4. 启动 Tiny PXE Server
+
+BIOS 选择 undionly.kpxe
+UEFI 选择 snponly-x86-64.efi
